@@ -1,6 +1,6 @@
 {
 	"name": "konvention",
-	"version": "1.0.1",
+	"version": "2.0.0",
 	"description": "An MVC package for Express.js",
 	"keywords": [ "mvc", "model", "view", "controller", "express", "expressjs", "express.js", "konvention" ],
 	"homepage": "https://github.com/jrop/konvention.git",
@@ -17,12 +17,11 @@
 	},
 	"dependencies": {
 		"express": "4.x",
-		"glob": ">=5.x"
+		"glob": "5.x",
+		"extend": "2.x",
+		"log4js": "0.x"
 	},
 	"files" : [
-		"app-extender.js",
-		"config-loader.js",
-		"controller-wrapper.js",
 		"index.js"
 	],
 	"engines": {

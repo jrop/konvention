@@ -1,104 +1,67 @@
 # Konvention
 
-(assumption: the reader knows how Express.js apps work)
+Konvention is middleware for Express.js that automatically mounts controllers to appropriate sub-url paths.
 
-Konvention is an MVC framework for Express.js.  It uses just the right amount of convention-over-configuration to make building your app easy, without adding too much "magic" to the mix.
-
-It assumes your app is structured like this:
+Controllers are defined as express-routers that reside in a predefined `controllers/` directory.  For example, given the following directory structure:
 
 ```
-my-app-folder/
-    app.js
-    config.js *
-    config.production.js *
-    config.test.js *
-    controllers/
-        (controller files here)
-    views/
-        (view files here)
-```
-
-(* optional files)
-
-The app.js file is a one-liner:
-
-```
-require('konvention')
-```
-
-## Configuration
-
-Configuration files take the form:
-
-```
-module.exports = function(app) {
-    app.set('port', 80)
-    app.set('root', '/')
-
-    app.use(require('morgan')())
-
-    // any other configuration here
-}
-```
-
-First the file `config.js` is loaded, and then the environment-specific config-file (`config.production.js` or `config.whatever.js`) is loaded second!  The environment is inferred from the `NODE_ENV` environment variable.  Easy!
-
-```
-my-prompt$ NODE_ENV=debug node app.js
-```
-
-This would load the two config files (in this order): `config.js` and `config.debug.js`.
-
-## Controllers
-
-Controllers go into the `controllers/` sub-directory, as `*.js` files, and take the form:
-
-```
-module.exports = require('express').Router()
-    .get('/', function(req, res) {
-        res.end('Hello World!')
-    })
-```
-
-If the controller's file-name is `index.js`, it is mounted at the path `/`.  For example, say we have two controllers:
-
-```
+app.js
 controllers/
-    index.js
-    admin.js
+    admin/
+        index.js (1)
+    api.js (2)
+    index.js (3)
 ```
 
-The router in `index.js` will be mounted at the path `/` (equivalent to `app.use('/', require('controllers/index.js'))` and `admin.js` will be mounted at `/admin`.  Sub-directories are taken into account as well, for instance:
+Konvention will mount (1) at the path `/admin`, (2) at `/api`, and (3) at `/`.
+
+Your `app.js` file could look something like:
 
 ```
-controllers/
-    index.js
-    my-sub-dir/
-        my-sub-controller.js
-```
-
-In this case, the `Router` exported by `my-sub-controller.js` will be mounted at `/my-sub-dir/my-sub-controller`.
-
-## Views
-
-According to the rules above, views for controllers must be in a directory structure that reflects the controller's directory structure that it resides in.  When using Express.js's `render` function, only the view name is used because this framework intelligently infers the sub-directory by what sub-path the `Router` was mounted to.
-
-For example, say my `Router` was mounted at the path `admin`.  In my handlers, I may just code this:
-
-```
+var express = require('express')
+var konvention = require('konvention')
 // ...
-.get('/dashboard', function(req, res) {
-    res.render('dashboard')
-})
+var app = express()
+app.use(konvention())
 // ...
-```
-The framework will delegate this call to Express.js, prepending the view-name with the path `'admin/'` as if you had called:
+app.listen(80)
 
 ```
-res.render('admin/dashboard')
+
+It also provides one convenience: it overrides the `Response.render` method for each controller to automatically prefix your view-names with the appropriate sub-directory.  For example, using the above directory structure as an example, we could have the following parallel directory structure for our views (assume for example's sake that we are using the vash view-engine):
+
+```
+views/
+    admin/
+        dashboard.vash
+    index.vash
 ```
 
-## Make it Better
+In the admin controller (file [1] above), we could add the following line to one of our route-handlers:
+
+```
+response.render('dashboard')
+```
+Konvention will automatically prepend the sub-path `admin/` to the view-name so that `views/admin/dashboard.vash` will render.
+
+## Options
+
+You may pass options to the `konvention()` call to configure its behavior:
+
+* `logger`: a log4js logger, or null to turn logging off
+* `controllersDirectory`: the directory name to scan for controllers
+
+## Installation
+
+Use npm: `npm install konvention`
+
+## Changes from v1.0
+
+In this version, Konvention was significantly scaled-down from version 1.0, adhering to the philosophy of doing one thing, and doing that thing well.  This philosophy will be the future motivation for developing Konvention further.
+* Konvention is now middleware, instead of a replacement for your `app.js` file (breaking change)
+* Konvention no longer provides configuration management -- there are other modules that do it better
+
+## Contribute
 
 If you have added a feature, or cleaned up the code a bit, submit a pull-request!
 
