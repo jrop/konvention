@@ -56,7 +56,7 @@ module.exports = function(settings) {
 
 		try {
 			var controller = require(filePath)
-			base.use(mountPoint, controllerWrapper(subdir, controller))
+			base.use(mountPoint, controllerWrapper(mountPoint.substring(1), controller))
 			settings.logger.info('Mounted "' + file + '" at ' + mountPoint)
 		} catch (e) {
 			settings.logger.trace(e.stack)
