@@ -1,5 +1,7 @@
 # Konvention
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/jrop/konvention.svg)](https://greenkeeper.io/)
+
 (assumption: the reader knows how Express.js apps work)
 
 Konvention is an MVC framework for Express.js.  It uses just the right amount of convention-over-configuration to make building your app easy, without adding too much "magic" to the mix.
